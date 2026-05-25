@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iso-converter — CUE/BIN to ISO</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --accent:   #4a90d9;
+      --accent-d: #2f72b8;
+      --dark:     #1a1f2e;
+      --dark2:    #252b3b;
+      --text:     #1d2130;
+      --muted:    #6b7591;
+      --border:   #e2e6ef;
+      --bg-alt:   #f7f9fc;
+      --code-bg:  #1e2433;
+      --green:    #27ae60;
+      --red:      #e74c3c;
+      --radius:   8px;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    }
+
+    body { font-family: var(--font); color: var(--text); line-height: 1.6; }
+
+    /* ── NAV ── */
+    nav {
+      background: var(--dark);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-brand {
+      color: #fff;
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: -0.01em;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .nav-brand svg { opacity: 0.85; }
+    .nav-links { display: flex; gap: 1.5rem; }
+    .nav-links a {
+      color: rgba(255,255,255,0.65);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.15s;
+    }
+    .nav-links a:hover { color: #fff; }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(135deg, var(--dark) 0%, var(--dark2) 100%);
+      color: #fff;
+      padding: 6rem 2rem 5rem;
+      text-align: center;
+    }
+    .hero-badge {
+      display: inline-block;
+      background: rgba(74,144,217,0.2);
+      border: 1px solid rgba(74,144,217,0.4);
+      color: #7ab8f0;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      margin-bottom: 1.25rem;
+    }
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.25rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      margin-bottom: 1rem;
+    }
+    .hero h1 span { color: var(--accent); }
+    .hero p {
+      font-size: 1.15rem;
+      color: rgba(255,255,255,0.65);
+      max-width: 520px;
+      margin: 0 auto 2rem;
+    }
+    .btn {
+      display: inline-block;
+      padding: 0.7rem 1.6rem;
+      border-radius: var(--radius);
+      font-weight: 600;
+      font-size: 0.95rem;
+      text-decoration: none;
+      transition: filter 0.15s, transform 0.1s;
+    }
+    .btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-ghost {
+      background: rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.8);
+      border: 1px solid rgba(255,255,255,0.15);
+      margin-left: 0.75rem;
+    }
+
+    /* ── FEATURES ── */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 4rem 2rem;
+    }
+    .feature {
+      background: var(--bg-alt);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+    }
+    .feature-icon {
+      width: 44px; height: 44px;
+      border-radius: var(--radius);
+      background: rgba(74,144,217,0.12);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 1rem;
+    }
+    .feature-icon svg { color: var(--accent); }
+    .feature h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .feature p { font-size: 0.9rem; color: var(--muted); }
+
+    /* ── HOW IT WORKS ── */
+    .section { padding: 4rem 2rem; }
+    .section-inner { max-width: 800px; margin: 0 auto; }
+    .section h2 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0;
+      position: relative;
+    }
+    .step {
+      text-align: center;
+      padding: 1.5rem 1rem;
+      position: relative;
+    }
+    .step:not(:last-child)::after {
+      content: "→";
+      position: absolute;
+      right: -0.5rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--border);
+      font-size: 1.5rem;
+    }
+    .step-num {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+      font-size: 1.1rem;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 0.75rem;
+    }
+    .step h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.3rem; }
+    .step p { font-size: 0.85rem; color: var(--muted); }
+
+    /* ── FORMATS TABLE ── */
+    .formats-section { background: var(--bg-alt); }
+    .table-wrap { overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    th {
+      background: var(--dark);
+      color: rgba(255,255,255,0.8);
+      text-align: left;
+      padding: 0.65rem 1rem;
+      font-weight: 600;
+      font-size: 0.8rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    td { padding: 0.7rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(74,144,217,0.04); }
+    .tag {
+      display: inline-block;
+      padding: 0.15rem 0.55rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      font-family: var(--mono);
+    }
+    .tag-ok  { background: #e6f7ee; color: var(--green); }
+    .tag-no  { background: #fdecea; color: var(--red); }
+
+    /* ── QUICK START ── */
+    .quickstart { max-width: 720px; margin: 0 auto; }
+    pre {
+      background: var(--code-bg);
+      color: #cdd7e8;
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      overflow-x: auto;
+      font-family: var(--mono);
+      font-size: 0.875rem;
+      line-height: 1.7;
+    }
+    pre .comment { color: #5a6e8c; }
+    pre .cmd     { color: #7ab8f0; }
+
+    /* ── REQUIREMENTS ── */
+    .req-list {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      justify-content: center;
+      padding: 0;
+    }
+    .req-list li {
+      background: var(--bg-alt);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+      font-family: var(--mono);
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--dark);
+      color: rgba(255,255,255,0.45);
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.85rem;
+    }
+    footer a { color: rgba(255,255,255,0.55); text-decoration: none; }
+    footer a:hover { color: #fff; }
+
+    .divider { border: none; border-top: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-brand" href="#">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/>
+      <line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/>
+      <line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/>
+    </svg>
+    iso-converter
+  </a>
+  <nav class="nav-links">
+    <a href="usage.md">Usage</a>
+    <a href="architecture.md">Architecture</a>
+  </nav>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">Open Source · Qt6 · C++17</div>
+  <h1>Convert <span>CUE/BIN</span> to ISO<br>the right way.</h1>
+  <p>Strip raw CD sectors, extract the data track, and produce a clean ISO 9660 image — all from a native desktop app with drag-and-drop.</p>
+  <a href="#quickstart" class="btn btn-primary">Build from source</a>
+  <a href="usage.md" class="btn btn-ghost">Read the docs</a>
+</section>
+
+<!-- FEATURES -->
+<div class="features">
+  <div class="feature">
+    <div class="feature-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/>
+        <path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"/>
+      </svg>
+    </div>
+    <h3>Drag &amp; Drop</h3>
+    <p>Drop a <code>.cue</code> file straight onto the window to load it. No menus required.</p>
+  </div>
+  <div class="feature">
+    <div class="feature-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
+        <line x1="6" y1="20" x2="6" y2="14"/>
+      </svg>
+    </div>
+    <h3>Live Progress</h3>
+    <p>Sector-accurate progress bar updated in real time. Conversion runs on a background thread — the UI never freezes.</p>
+  </div>
+  <div class="feature">
+    <div class="feature-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+      </svg>
+    </div>
+    <h3>Native Qt6</h3>
+    <p>No Electron, no JVM, no web runtime. A small native binary that links directly against Qt6 Widgets.</p>
+  </div>
+  <div class="feature">
+    <div class="feature-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+    </div>
+    <h3>Correct sector stripping</h3>
+    <p>Handles MODE1/2352, MODE2/2352, and MODE1/2048 tracks. Pregap and per-track BINs included.</p>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- HOW IT WORKS -->
+<section class="section">
+  <div class="section-inner">
+    <h2>How it works</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h3>Select CUE</h3>
+        <p>Drag a <code>.cue</code> file onto the window, or click Browse.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h3>Choose output</h3>
+        <p>Click Convert and pick where to save the <code>.iso</code>.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h3>Done</h3>
+        <p>Watch the progress bar. The final ISO size and sector count are reported on completion.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SUPPORTED FORMATS -->
+<section class="section formats-section">
+  <div class="section-inner">
+    <h2>Supported track types</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Track type</th>
+            <th>Raw sector</th>
+            <th>User data</th>
+            <th>Status</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>MODE1/2352</code></td>
+            <td>2352 bytes</td>
+            <td>2048 bytes @ offset 16</td>
+            <td><span class="tag tag-ok">Supported</span></td>
+            <td>Standard CD-ROM data track. Most common.</td>
+          </tr>
+          <tr>
+            <td><code>MODE2/2352</code></td>
+            <td>2352 bytes</td>
+            <td>2048 bytes @ offset 24</td>
+            <td><span class="tag tag-ok">Supported</span></td>
+            <td>Mixed-mode / CD-XA discs. Form 1 data extracted.</td>
+          </tr>
+          <tr>
+            <td><code>MODE1/2048</code></td>
+            <td>2048 bytes</td>
+            <td>2048 bytes (direct)</td>
+            <td><span class="tag tag-ok">Supported</span></td>
+            <td>Already cooked ISO data — copied as-is.</td>
+          </tr>
+          <tr>
+            <td><code>AUDIO</code></td>
+            <td>2352 bytes</td>
+            <td>—</td>
+            <td><span class="tag tag-no">Not converted</span></td>
+            <td>Audio tracks are skipped. A CUE with only audio tracks is rejected.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- QUICK START -->
+<section class="section" id="quickstart">
+  <div class="section-inner quickstart">
+    <h2>Quick start</h2>
+    <pre><span class="comment"># 1. Clone and enter the directory</span>
+<span class="cmd">git clone &lt;repo-url&gt; iso-converter &amp;&amp; cd iso-converter</span>
+
+<span class="comment"># 2. Configure (Release build)</span>
+<span class="cmd">cmake --preset release</span>
+
+<span class="comment"># 3. Build</span>
+<span class="cmd">cmake --build build/release -j$(nproc)</span>
+
+<span class="comment"># 4. Run</span>
+<span class="cmd">./build/release/iso-converter</span></pre>
+
+    <br>
+    <h2>Requirements</h2>
+    <ul class="req-list">
+      <li>CMake &ge; 3.20</li>
+      <li>Qt 6.2+</li>
+      <li>C++17 compiler</li>
+      <li>Linux / macOS / Windows</li>
+    </ul>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>iso-converter &mdash; <a href="usage.md">Usage guide</a> &middot; <a href="architecture.md">Architecture</a></p>
+</footer>
+
+</body>
+</html>
