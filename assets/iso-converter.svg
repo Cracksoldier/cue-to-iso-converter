@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Disc body -->
+  <circle cx="32" cy="32" r="30" fill="#4a90d9"/>
+  <!-- Sheen ring -->
+  <circle cx="32" cy="32" r="28" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="2"/>
+  <!-- Inner data ring -->
+  <circle cx="32" cy="32" r="20" fill="#2f72b8"/>
+  <!-- Inner sheen -->
+  <circle cx="32" cy="32" r="18" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
+  <!-- Center hub -->
+  <circle cx="32" cy="32" r="7" fill="#1a1f2e"/>
+  <!-- Center hole -->
+  <circle cx="32" cy="32" r="4" fill="white"/>
+</svg>
