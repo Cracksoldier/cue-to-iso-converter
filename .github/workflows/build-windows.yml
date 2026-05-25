@@ -1,0 +1,88 @@
+name: Build Windows EXE
+
+on:
+  push:
+    branches: [main]
+    tags:     ['v*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version string (e.g. 1.2.0) — defaults to short commit SHA'
+        required: false
+        default: ''
+      create_release:
+        description: 'Create a GitHub Release'
+        type: boolean
+        required: false
+        default: false
+
+jobs:
+  build:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve version
+        id: meta
+        shell: bash
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+          elif [[ -n "${{ inputs.version }}" ]]; then
+            VERSION="${{ inputs.version }}"
+            VERSION="${VERSION#v}"
+          else
+            VERSION="dev-$(git rev-parse --short HEAD)"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "zip=ISO_Converter-${VERSION}-windows-x64.zip" >> "$GITHUB_OUTPUT"
+
+      - name: Setup MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Install Qt6
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.7.*'
+          arch: win64_msvc2022_64
+
+      - name: Configure
+        run: cmake --preset release -G Ninja
+
+      - name: Build
+        run: cmake --build build/release
+
+      - name: Deploy Qt dependencies
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path deploy
+          Copy-Item build\release\iso-converter.exe deploy\
+          windeployqt6 --release --no-translations `
+            --no-system-d3d-compiler --no-opengl-sw `
+            deploy\iso-converter.exe
+
+      - name: Create ZIP
+        shell: pwsh
+        run: |
+          Compress-Archive -Path deploy\* `
+            -DestinationPath "${{ steps.meta.outputs.zip }}"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: iso-converter-windows
+          path: ${{ steps.meta.outputs.zip }}
+          if-no-files-found: error
+
+      - name: Create release
+        if: startsWith(github.ref, 'refs/tags/') || inputs.create_release == true
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.meta.outputs.version }}
+          name: ISO Converter v${{ steps.meta.outputs.version }}
+          files: ${{ steps.meta.outputs.zip }}
