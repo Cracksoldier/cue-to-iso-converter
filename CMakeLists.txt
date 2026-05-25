@@ -10,7 +10,6 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 find_package(Qt6 6.2 REQUIRED COMPONENTS Core Widgets)
-qt6_standard_project_setup()
 
 qt_add_executable(iso-converter
     src/main.cpp
