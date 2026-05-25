@@ -48,7 +48,7 @@ jobs:
       - name: Install Qt6
         uses: jurplel/install-qt-action@v4
         with:
-          version: '6.5.*'
+          version: '6.6.*'
           arch: win64_msvc2019_64
 
       - name: Configure
