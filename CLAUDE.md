@@ -43,13 +43,16 @@ The app is split into a conversion engine and a Qt6 UI layer. All source lives i
 
 ## CI / Release
 
-`.github/workflows/build-appimage.yml` builds a portable AppImage on `ubuntu-22.04` using `linuxdeploy` + `linuxdeploy-plugin-qt`. It accepts two `workflow_dispatch` inputs:
-- `version` — version string embedded in the AppImage filename; defaults to `dev-<short SHA>`
-- `create_release` — when checked, publishes a GitHub Release with the AppImage attached
+Two workflows produce pre-built artifacts:
 
-The app icon lives in `assets/iso-converter.svg` and is converted to a 256×256 PNG during CI via `rsvg-convert`.
+- **`.github/workflows/build-appimage.yml`** — portable AppImage on `ubuntu-22.04` via `linuxdeploy` + `linuxdeploy-plugin-qt`. The app icon (`assets/iso-converter.svg`) is converted to a 256×256 PNG by `rsvg-convert`.
+- **`.github/workflows/build-windows.yml`** — portable Windows zip on `windows-latest` using MSVC 2022 + Qt 6.6 (`win64_msvc2019_64`). `windeployqt` bundles all Qt DLLs so the zip runs with no system Qt required. Qt 6.6 is required (not 6.5) because Qt 6.5's `qvarlengtharray.h` uses `stdext::checked_array_iterator` which was removed from MSVC 2022 ≥ 17.8 (QTBUG-117765).
 
-To ship a tagged release: `git tag v1.x.x && git push origin v1.x.x` — the workflow fires automatically.
+Both workflows accept the same `workflow_dispatch` inputs:
+- `version` — version string in the artifact filename; defaults to `dev-<short SHA>`
+- `create_release` — publishes a GitHub Release with the artifact attached
+
+To ship a tagged release: `git tag v1.x.x && git push origin v1.x.x` — both workflows fire automatically.
 
 ## Raw string literal caveat
 
