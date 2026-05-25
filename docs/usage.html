@@ -234,6 +234,14 @@
 <article>
 
   <h2>Installation</h2>
+
+  <h3>AppImage (recommended)</h3>
+  <p>Download the latest <code>ISO_Converter-x86_64.AppImage</code> from the <a href="https://github.com/Cracksoldier/cue-to-iso-converter/releases">Releases page</a>, then make it executable and run:</p>
+  <pre>chmod +x ISO_Converter-x86_64.AppImage
+./ISO_Converter-x86_64.AppImage</pre>
+  <p>No installation or Qt libraries required — everything is bundled inside the AppImage.</p>
+
+  <h3>Build from source</h3>
   <p><strong>Requirements:</strong> CMake 3.20+, Qt 6.2+ (Core + Widgets), a C++17 compiler.</p>
   <pre>cmake --preset release
 cmake --build build/release -j$(nproc)</pre>

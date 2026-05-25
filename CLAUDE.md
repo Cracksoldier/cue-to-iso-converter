@@ -41,6 +41,20 @@ The app is split into a conversion engine and a Qt6 UI layer. All source lives i
 - `DropArea` is a `QLabel` subclass that accepts `.cue` file drops and emits `fileDropped(QString)`.
 - `MainWindow` owns the layout, wires `DropArea::fileDropped` and the Browse button to `setCuePath()`, and spawns the worker thread on Convert. `setConvertingState(bool)` disables Browse/DropArea/Convert during a running conversion.
 
+## CI / Release
+
+`.github/workflows/build-appimage.yml` builds a portable AppImage on `ubuntu-22.04` using `linuxdeploy` + `linuxdeploy-plugin-qt`. It accepts two `workflow_dispatch` inputs:
+- `version` — version string embedded in the AppImage filename; defaults to `dev-<short SHA>`
+- `create_release` — when checked, publishes a GitHub Release with the AppImage attached
+
+The app icon lives in `assets/iso-converter.svg` and is converted to a 256×256 PNG during CI via `rsvg-convert`.
+
+To ship a tagged release: `git tag v1.x.x && git push origin v1.x.x` — the workflow fires automatically.
+
 ## Raw string literal caveat
 
 The FILE regex in `CueParser.cpp` uses the named delimiter `R"re(...)re"` instead of `R"(...)"` because the pattern contains `)"` (from `"([^"]+)"`), which would prematurely terminate an unnamed raw string literal.
+
+## CMakeLists note
+
+`qt6_standard_project_setup()` is intentionally absent — it requires Qt 6.3+ and the CI runner ships Qt 6.2. `CMAKE_AUTOMOC` and `CMAKE_AUTORCC` are set manually instead.
