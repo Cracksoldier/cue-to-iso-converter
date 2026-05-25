@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Usage — iso-converter</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --accent:   #4a90d9;
+      --dark:     #1a1f2e;
+      --dark2:    #252b3b;
+      --text:     #1d2130;
+      --muted:    #6b7591;
+      --border:   #e2e6ef;
+      --bg-alt:   #f7f9fc;
+      --code-bg:  #1e2433;
+      --green:    #27ae60;
+      --red:      #e74c3c;
+      --radius:   8px;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    }
+
+    body { font-family: var(--font); color: var(--text); line-height: 1.7; background: #fff; }
+
+    /* ── NAV ── */
+    nav {
+      background: var(--dark);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-brand {
+      color: #fff;
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: -0.01em;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .nav-brand svg { opacity: 0.85; }
+    .nav-links { display: flex; gap: 1.5rem; }
+    .nav-links a {
+      color: rgba(255,255,255,0.65);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.15s;
+    }
+    .nav-links a:hover { color: #fff; }
+    .nav-links a.active { color: #fff; }
+
+    /* ── PAGE HEADER ── */
+    .page-header {
+      background: linear-gradient(135deg, var(--dark) 0%, var(--dark2) 100%);
+      color: #fff;
+      padding: 3rem 2rem 2.5rem;
+    }
+    .page-header-inner { max-width: 760px; margin: 0 auto; }
+    .page-header .breadcrumb {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.45);
+      margin-bottom: 0.6rem;
+    }
+    .page-header .breadcrumb a { color: rgba(255,255,255,0.55); text-decoration: none; }
+    .page-header .breadcrumb a:hover { color: #fff; }
+    .page-header h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      line-height: 1.2;
+    }
+    .page-header p {
+      margin-top: 0.6rem;
+      color: rgba(255,255,255,0.6);
+      font-size: 1rem;
+    }
+
+    /* ── ARTICLE ── */
+    .article-wrap {
+      display: grid;
+      grid-template-columns: 1fr min(760px, 100%) 1fr;
+      padding: 3rem 1rem;
+    }
+    .article-wrap > * { grid-column: 2; }
+
+    article h2 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin: 2.5rem 0 0.75rem;
+      padding-top: 0.5rem;
+      border-top: 1px solid var(--border);
+      color: var(--text);
+    }
+    article h2:first-child { margin-top: 0; border-top: none; }
+
+    article h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin: 1.5rem 0 0.4rem;
+      color: var(--text);
+    }
+
+    article p { margin-bottom: 1rem; }
+
+    article ul, article ol {
+      padding-left: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    article li { margin-bottom: 0.3rem; }
+
+    article code {
+      background: var(--bg-alt);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.1em 0.4em;
+      font-family: var(--mono);
+      font-size: 0.875em;
+      color: #c7254e;
+    }
+
+    article pre {
+      background: var(--code-bg);
+      color: #cdd7e8;
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      overflow-x: auto;
+      font-family: var(--mono);
+      font-size: 0.875rem;
+      line-height: 1.7;
+      margin-bottom: 1.25rem;
+    }
+    article pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      color: inherit;
+      font-size: inherit;
+    }
+
+    article .table-wrap { overflow-x: auto; margin-bottom: 1.25rem; }
+    article table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    article th {
+      background: var(--dark);
+      color: rgba(255,255,255,0.8);
+      text-align: left;
+      padding: 0.65rem 1rem;
+      font-weight: 600;
+      font-size: 0.8rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    article td {
+      padding: 0.65rem 1rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    article tr:last-child td { border-bottom: none; }
+    article tr:hover td { background: rgba(74,144,217,0.04); }
+
+    .tag {
+      display: inline-block;
+      padding: 0.15rem 0.55rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      font-family: var(--mono);
+    }
+    .tag-ok { background: #e6f7ee; color: var(--green); }
+    .tag-no { background: #fdecea; color: var(--red); }
+
+    .callout {
+      background: var(--bg-alt);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      padding: 0.85rem 1.1rem;
+      margin-bottom: 1.25rem;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+    .callout strong { color: var(--text); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--dark);
+      color: rgba(255,255,255,0.45);
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.85rem;
+    }
+    footer a { color: rgba(255,255,255,0.55); text-decoration: none; }
+    footer a:hover { color: #fff; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="index.html">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/>
+      <line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/>
+      <line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/>
+    </svg>
+    iso-converter
+  </a>
+  <div class="nav-links">
+    <a href="usage.html" class="active">Usage</a>
+    <a href="architecture.html">Architecture</a>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="page-header-inner">
+    <div class="breadcrumb"><a href="index.html">iso-converter</a> / Usage</div>
+    <h1>Usage Guide</h1>
+    <p>How to install, run, and convert CUE/BIN images to ISO.</p>
+  </div>
+</div>
+
+<div class="article-wrap">
+<article>
+
+  <h2>Installation</h2>
+  <p><strong>Requirements:</strong> CMake 3.20+, Qt 6.2+ (Core + Widgets), a C++17 compiler.</p>
+  <pre>cmake --preset release
+cmake --build build/release -j$(nproc)</pre>
+  <p>The binary is written to <code>build/release/iso-converter</code>. No installation step is required — run it in place.</p>
+
+  <h2>Converting a disc image</h2>
+  <ol>
+    <li>Launch <code>iso-converter</code>.</li>
+    <li>Drag a <code>.cue</code> file onto the drop zone, or click <strong>Browse for .cue file…</strong> to open a file dialog. The drop zone label updates to show the selected filename.</li>
+    <li>Click <strong>Convert to ISO</strong>. A save dialog opens pre-filled with the same base name as the CUE file (e.g. <code>game.cue</code> → <code>game.iso</code>). Choose the output path.</li>
+    <li>The progress bar appears and advances as sectors are written. The status label shows the current percentage.</li>
+    <li>On success a dialog reports the ISO file size in MiB and the total sector count. On failure it describes the error.</li>
+  </ol>
+  <div class="callout"><strong>Note:</strong> The UI is disabled during conversion. Drop a new CUE or click Browse after the current job finishes.</div>
+
+  <h2>Supported track types</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>CUE type</th>
+          <th>Meaning</th>
+          <th>Converted?</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>MODE1/2352</code></td>
+          <td>Standard CD-ROM data track, raw 2352-byte sectors</td>
+          <td><span class="tag tag-ok">Yes</span></td>
+        </tr>
+        <tr>
+          <td><code>MODE2/2352</code></td>
+          <td>Mixed-mode / CD-XA data track, raw 2352-byte sectors</td>
+          <td><span class="tag tag-ok">Yes (Form 1 data)</span></td>
+        </tr>
+        <tr>
+          <td><code>MODE1/2048</code></td>
+          <td>CD-ROM data, already stripped to 2048-byte sectors</td>
+          <td><span class="tag tag-ok">Yes (direct copy)</span></td>
+        </tr>
+        <tr>
+          <td><code>AUDIO</code></td>
+          <td>Red Book audio</td>
+          <td><span class="tag tag-no">No</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Only the <strong>first data track</strong> in the CUE is extracted. A CUE that contains only <code>AUDIO</code> tracks cannot be converted and will produce an error.</p>
+
+  <h2>Multi-file CUEs</h2>
+  <p>Some disc rippers produce one BIN file per track (each <code>FILE</code> line in the CUE names a different binary). This is handled automatically — the converter reads the BIN file referenced by the data track, regardless of how many other BINs are listed.</p>
+
+  <h2>Verifying the output</h2>
+  <p>An ISO 9660 image always has the string <code>CD001</code> at byte offset 32 769 (sector 16, byte 1). Check it with:</p>
+  <pre>xxd -s 32769 -l 5 output.iso
+# Expected: ... 43 44 30 30 31  CD001</pre>
+  <p>For a full filesystem listing (requires the <code>genisoimage</code> package):</p>
+  <pre>isoinfo -d -i output.iso   # volume descriptor
+isoinfo -l -i output.iso   # directory listing</pre>
+
+  <h2>Limitations</h2>
+  <ul>
+    <li><strong>Audio-only CUEs</strong> are rejected with a clear error message.</li>
+    <li>The CUE must reference <code>BINARY</code> files. <code>MOTOROLA</code> or other encodings are not supported.</li>
+    <li>Only the first data track is written. Multi-session discs with more than one data track will have only their first session extracted.</li>
+    <li>MODE2 Form 2 sectors (used for MPEG video on Video CDs) are processed using the MODE2 header offset — the resulting ISO may not be fully ISO 9660 compliant for pure CDXA discs.</li>
+  </ul>
+
+</article>
+</div>
+
+<footer>
+  <p>iso-converter &mdash; <a href="index.html">Home</a> &middot; <a href="usage.html">Usage</a> &middot; <a href="architecture.html">Architecture</a></p>
+</footer>
+
+</body>
+</html>

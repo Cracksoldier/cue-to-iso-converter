@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Architecture — iso-converter</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --accent:   #4a90d9;
+      --dark:     #1a1f2e;
+      --dark2:    #252b3b;
+      --text:     #1d2130;
+      --muted:    #6b7591;
+      --border:   #e2e6ef;
+      --bg-alt:   #f7f9fc;
+      --code-bg:  #1e2433;
+      --green:    #27ae60;
+      --radius:   8px;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    }
+
+    body { font-family: var(--font); color: var(--text); line-height: 1.7; background: #fff; }
+
+    /* ── NAV ── */
+    nav {
+      background: var(--dark);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-brand {
+      color: #fff;
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: -0.01em;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .nav-brand svg { opacity: 0.85; }
+    .nav-links { display: flex; gap: 1.5rem; }
+    .nav-links a {
+      color: rgba(255,255,255,0.65);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.15s;
+    }
+    .nav-links a:hover { color: #fff; }
+    .nav-links a.active { color: #fff; }
+
+    /* ── PAGE HEADER ── */
+    .page-header {
+      background: linear-gradient(135deg, var(--dark) 0%, var(--dark2) 100%);
+      color: #fff;
+      padding: 3rem 2rem 2.5rem;
+    }
+    .page-header-inner { max-width: 760px; margin: 0 auto; }
+    .page-header .breadcrumb {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.45);
+      margin-bottom: 0.6rem;
+    }
+    .page-header .breadcrumb a { color: rgba(255,255,255,0.55); text-decoration: none; }
+    .page-header .breadcrumb a:hover { color: #fff; }
+    .page-header h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      line-height: 1.2;
+    }
+    .page-header p {
+      margin-top: 0.6rem;
+      color: rgba(255,255,255,0.6);
+      font-size: 1rem;
+    }
+
+    /* ── ARTICLE ── */
+    .article-wrap {
+      display: grid;
+      grid-template-columns: 1fr min(760px, 100%) 1fr;
+      padding: 3rem 1rem;
+    }
+    .article-wrap > * { grid-column: 2; }
+
+    article h2 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin: 2.5rem 0 0.75rem;
+      padding-top: 0.5rem;
+      border-top: 1px solid var(--border);
+    }
+    article h2:first-child { margin-top: 0; border-top: none; }
+
+    article h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin: 1.5rem 0 0.4rem;
+    }
+
+    article p { margin-bottom: 1rem; }
+
+    article ul, article ol {
+      padding-left: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    article li { margin-bottom: 0.3rem; }
+
+    article code {
+      background: var(--bg-alt);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.1em 0.4em;
+      font-family: var(--mono);
+      font-size: 0.875em;
+      color: #c7254e;
+    }
+
+    article pre {
+      background: var(--code-bg);
+      color: #cdd7e8;
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      overflow-x: auto;
+      font-family: var(--mono);
+      font-size: 0.875rem;
+      line-height: 1.7;
+      margin-bottom: 1.25rem;
+    }
+    article pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      color: inherit;
+      font-size: inherit;
+    }
+    /* ASCII diagram gets a slightly lighter background to distinguish it */
+    article pre.diagram {
+      background: #141926;
+      color: #8fa8c8;
+      line-height: 1.5;
+    }
+
+    article .table-wrap { overflow-x: auto; margin-bottom: 1.25rem; }
+    article table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    article th {
+      background: var(--dark);
+      color: rgba(255,255,255,0.8);
+      text-align: left;
+      padding: 0.65rem 1rem;
+      font-weight: 600;
+      font-size: 0.8rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    article td {
+      padding: 0.65rem 1rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    article tr:last-child td { border-bottom: none; }
+    article tr:hover td { background: rgba(74,144,217,0.04); }
+
+    .callout {
+      background: var(--bg-alt);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      padding: 0.85rem 1.1rem;
+      margin-bottom: 1.25rem;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+    .callout strong { color: var(--text); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--dark);
+      color: rgba(255,255,255,0.45);
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.85rem;
+    }
+    footer a { color: rgba(255,255,255,0.55); text-decoration: none; }
+    footer a:hover { color: #fff; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="index.html">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/>
+      <line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/>
+      <line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/>
+    </svg>
+    iso-converter
+  </a>
+  <div class="nav-links">
+    <a href="usage.html">Usage</a>
+    <a href="architecture.html" class="active">Architecture</a>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="page-header-inner">
+    <div class="breadcrumb"><a href="index.html">iso-converter</a> / Architecture</div>
+    <h1>Architecture</h1>
+    <p>Internals of the conversion pipeline, threading model, and UI wiring.</p>
+  </div>
+</div>
+
+<div class="article-wrap">
+<article>
+
+  <h2>Overview</h2>
+  <pre class="diagram">┌─────────────────────────────────────┐
+│              MainWindow             │
+│  ┌──────────┐   ┌────────────────┐  │
+│  │ DropArea │   │ QProgressBar   │  │
+│  └──────────┘   └────────────────┘  │
+└────────────────┬────────────────────┘
+                 │ spawns
+         ┌───────▼────────┐
+         │   QThread      │
+         │  ┌──────────┐  │
+         │  │Converter │  │  ──signals──▶  MainWindow slots
+         │  └──────────┘  │
+         └───────┬────────┘
+                 │ calls
+         ┌───────▼────────┐
+         │   CueParser    │
+         └───────┬────────┘
+                 │
+         ┌───────▼────────┐
+         │   BIN file     │  ──sectors──▶  ISO file
+         └────────────────┘</pre>
+  <p>All source files live in <code>src/</code>. There is no subdirectory split.</p>
+
+  <h2>CUE parsing</h2>
+  <p><code>CueParser::parse()</code> processes a CUE sheet line-by-line with three case-insensitive regular expressions:</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Pattern</th><th>Captures</th></tr></thead>
+      <tbody>
+        <tr><td><code>FILE "…" BINARY</code></td><td>BIN filename</td></tr>
+        <tr><td><code>TRACK NN TYPE</code></td><td>track number and type string</td></tr>
+        <tr><td><code>INDEX NN MM:SS:FF</code></td><td>index number and timestamp</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout">
+    <strong>Raw-string delimiter:</strong> The FILE regex uses <code>R"re(...)re"</code> instead of <code>R"(...)"</code> because the pattern contains <code>)"</code>, which would prematurely end an unnamed raw string literal.
+  </div>
+  <p>Timestamps are converted to <strong>frame counts</strong>: <code>MM × 60 × 75 + SS × 75 + FF</code> (75 frames per CD-audio second). Multiplying by the sector size gives the byte offset in the BIN file.</p>
+  <p>Each <code>FILE</code> directive updates the current BIN path. Every subsequent <code>TRACK</code> inherits that path, so per-track BIN layouts (one BIN per track) are supported automatically.</p>
+
+  <h2>Sector extraction</h2>
+  <h3>Sector geometry</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>CUE type</th><th>Raw sector</th><th>Data offset</th><th>Data size</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>MODE1/2352</code></td>
+          <td>2352 bytes</td>
+          <td>16 <em>(sync 12 + header 4)</em></td>
+          <td>2048 bytes</td>
+        </tr>
+        <tr>
+          <td><code>MODE2/2352</code></td>
+          <td>2352 bytes</td>
+          <td>24 <em>(sync 12 + header 4 + subheader 8)</em></td>
+          <td>2048 bytes</td>
+        </tr>
+        <tr>
+          <td><code>MODE1/2048</code></td>
+          <td>2048 bytes</td>
+          <td>0</td>
+          <td>2048 bytes</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p>An ISO 9660 image is the concatenation of these 2048-byte user-data regions.</p>
+
+  <h3>Track boundaries</h3>
+  <pre>startByte = dataTrack.indexOneFrame × sectorSize
+
+endByte   = nextTrack.indexZeroFrame × nextSectorSize   (if INDEX 00 present)
+          | nextTrack.indexOneFrame  × nextSectorSize   (else)
+          | binFile.size()                              (if no next track)</pre>
+  <p>Using <code>INDEX 00</code> (pregap) as the end boundary prevents inter-track silence from leaking into the ISO data.</p>
+
+  <h3>Streaming loop</h3>
+  <pre>while pos &lt; endByte:
+    if remaining &lt; sectorSize: break   // discard incomplete final sector
+    read sectorSize bytes from BIN
+    write bytes [dataOffset … dataOffset+2048) to ISO
+    emit progressChanged(percent)      // only when percent value changes</pre>
+  <p>Progress is computed as <code>sectorsProcessed × 100 / totalSectors</code> and emitted only when the integer value changes, to avoid flooding the event queue.</p>
+
+  <h2>Threading model</h2>
+  <p><code>Converter</code> is a plain <code>QObject</code> moved onto a worker <code>QThread</code> via <code>moveToThread</code>. The self-cleaning signal chain avoids any manual <code>wait()</code> call:</p>
+  <pre>QThread::started
+    → Converter::convert(cuePath, isoPath)    // runs on worker thread
+    → Converter::finished
+        → QThread::quit                        // asks thread to exit
+        → MainWindow::onConversionFinished     // updates UI on main thread
+
+QThread::finished
+    → Converter::deleteLater
+    → QThread::deleteLater</pre>
+  <p>Because <code>QThread</code> is parented to <code>MainWindow</code>, it is also cleaned up if the window is destroyed before the thread finishes.</p>
+
+  <h2>UI wiring</h2>
+  <p><code>DropArea</code> is a <code>QLabel</code> subclass that overrides <code>dragEnterEvent</code>, <code>dragMoveEvent</code>, <code>dragLeaveEvent</code>, and <code>dropEvent</code>. It emits <code>fileDropped(QString)</code> for any dropped URL ending in <code>.cue</code>. Style changes (blue dashed border on hover) are applied via <code>setStyleSheet</code>.</p>
+  <p><code>MainWindow::setCuePath()</code> is the single entry point for both the drag-and-drop and browse-button paths. It stores the path, updates the drop-zone label, clears status and progress, and enables the Convert button.</p>
+  <p><code>setConvertingState(bool)</code> disables Browse, DropArea, and Convert during an active conversion to prevent concurrent jobs.</p>
+  <p>The ISO output path is pre-filled by replacing the CUE file's extension with <code>.iso</code> in the same directory (<code>suggestIsoPath</code>).</p>
+
+</article>
+</div>
+
+<footer>
+  <p>iso-converter &mdash; <a href="index.html">Home</a> &middot; <a href="usage.html">Usage</a> &middot; <a href="architecture.html">Architecture</a></p>
+</footer>
+
+</body>
+</html>
