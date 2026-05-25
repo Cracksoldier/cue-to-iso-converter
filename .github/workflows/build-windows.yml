@@ -48,8 +48,8 @@ jobs:
       - name: Install Qt6
         uses: jurplel/install-qt-action@v4
         with:
-          version: '6.7.*'
-          arch: win64_msvc2022_64
+          version: '6.5.*'
+          arch: win64_msvc2019_64
 
       - name: Configure
         run: cmake --preset release -G Ninja
@@ -62,7 +62,7 @@ jobs:
         run: |
           New-Item -ItemType Directory -Path deploy
           Copy-Item build\release\iso-converter.exe deploy\
-          windeployqt6 --release --no-translations `
+          windeployqt --release --no-translations `
             --no-system-d3d-compiler --no-opengl-sw `
             deploy\iso-converter.exe
 
